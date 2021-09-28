@@ -9,23 +9,23 @@ import (
 )
 
 type resp struct {
-	Body 	body 		`json:"body,omitempty"`
+	Body body `json:"body,omitempty"`
 }
 
 type body struct {
-	Stores	[]store
+	Stores []store
 }
 
 type store struct {
-	StoreName         string            `json:"storeName,omitempty"`
-	Storelistnumber   int               `json:"storelistnumber,omitempty"`
+	StoreName         string                       `json:"storeName,omitempty"`
+	Storelistnumber   int                          `json:"storelistnumber,omitempty"`
 	PartsAvailability map[string]partsAvailability `json:"partsAvailability,omitempty"`
 }
 
 type partsAvailability struct {
 	PickupSearchQuote     string `json:"pickupSearchQuote,omitempty"`
 	PickupQuote           string `json:"pickupQuote,omitempty"`
-	StoreSelectionEnabled bool `json:"storeSelectionEnabled,omitempty"`
+	StoreSelectionEnabled bool   `json:"storeSelectionEnabled,omitempty"`
 	PickupDisplay         string `json:"pickupDisplay,omitempty"`
 }
 
@@ -33,13 +33,12 @@ func main() {
 	//args := os.Args[1:]
 
 	partsModel := "MLKV3LL/A"
-	location := "95051"
+	location := "92126"
 	url := fmt.Sprintf("https://www.apple.com/shop/retail/availabilitySearch?parts.0=%s&location=%s", partsModel, location)
 	fmt.Println(url)
 	method := "GET"
 
-	client := &http.Client {
-	}
+	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)
 
 	if err != nil {
@@ -68,15 +67,16 @@ func main() {
 	response := resp{}
 	err = json.Unmarshal([]byte(body), &response)
 	if err != nil {
-		return 
+		return
 	}
 	stores := response.Body.Stores
 
 	var availableStores []string
 	for _, store := range stores {
 		availability := store.PartsAvailability[partsModel]
+		fmt.Printf("%s: %+v\n", store.StoreName, availability)
 		if availability.StoreSelectionEnabled && availability.PickupDisplay != "ineligible" {
-			_ = append(availableStores, store.StoreName)
+			availableStores = append(availableStores, store.StoreName)
 		}
 	}
 	fmt.Println(availableStores)
